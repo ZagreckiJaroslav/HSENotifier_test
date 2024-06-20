@@ -11,20 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Extract branch info
-      id: extract
-      run: |
-        BRANCH_NAME="${{ github.head_ref }}"
-        if [[ "$BRANCH_NAME" =~ ^([a-zA-Z0-9]+)_([0-9]+)$ ]]; then
-          TEAM_NAME="${BASH_REMATCH[1]}"
-          TASK_NUMBER="${BASH_REMATCH[2]}"
-        else
-          TEAM_NAME="unknown"
-          TASK_NUMBER="unknown"
-        fi
-        echo "TEAM_NAME=$TEAM_NAME" >> $GITHUB_ENV
-        echo "TASK_NUMBER=$TASK_NUMBER" >> $GITHUB_ENV
-
     - name: Notify on Telegram
       env:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -32,17 +18,21 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           if [ "${{ github.event.action }}" = "opened" ]; then
-            MESSAGE="🔔 A new pull request has been opened by team $TEAM_NAME for task $TASK_NUMBER: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} by ${{ github.event.pull_request.user.login }}. [View Pull Request](${{ github.event.pull_request.html_url }})"
+            MESSAGE="🔔 A new pull request has been opened: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} by ${{ github.event.pull_request.user.login }}. [View Pull Request](${{ github.event.pull_request.html_url }})"
           elif [ "${{ github.event.action }}" = "closed" ]; then
             if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
-              MESSAGE="✅ Pull request #${{ github.event.pull_request.number }} for task $TASK_NUMBER by team $TEAM_NAME has been merged: ${{ github.event.pull_request.title }} by ${{ github.event.pull_request.user.login }}. [View Pull Request](${{ github.event.pull_request.html_url }})"
+              MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
             else
-              MESSAGE="❌ Pull request #${{ github.event.pull_request.number }} for task $TASK_NUMBER by team $TEAM_NAME has been closed without merging: ${{ github.event.pull_request.title }} by ${{ github.event.pull_request.user.login }}. [View Pull Request](${{ github.event.pull_request.html_url }})"
+              MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
             fi
           fi
         elif [ "${{ github.event_name }}" = "issues" ]; then
           if [ "${{ github.event.action }}" = "opened" ]; then
-            MESSAGE="📝 A new issue has been opened by team $TEAM_NAME for task $TASK_NUMBER: #${{ github.event.issue.number }} - ${{ github.event.issue.title }} by ${{ github.event.issue.user.login }}. [View Issue](${{ github.event.issue.html_url }})"
+            ISSUE_RELATED_PR="No related pull request specified."
+            if [[ "${{ github.event.issue.body }}" =~ #[0-9]+ ]]; then
+              ISSUE_RELATED_PR="Related pull request: $BASH_REMATCH"
+            fi
+            MESSAGE="📝 Открыт новый вопрос: #${{ github.event.issue.number }} - ${{ github.event.issue.title }} от ${{ github.event.issue.user.login }} по реквесту: $ISSUE_RELATED_PR. \n[Просмотр](${{ github.event.issue.html_url }})"
           fi
         fi
         
