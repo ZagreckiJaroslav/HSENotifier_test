@@ -3,8 +3,8 @@ name: Telegram Notifications
 on:
   pull_request:
     types: [opened, closed]
-  issues:
-    types: [opened]
+  issue_comment:
+    types: [created]
 
 jobs:
   notify:
@@ -18,7 +18,7 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           if [ "${{ github.event.action }}" = "opened" ]; then
-            MESSAGE="🔔 A new pull request has been opened: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} by ${{ github.event.pull_request.user.login }}. [View Pull Request](${{ github.event.pull_request.html_url }})"
+            MESSAGE="🔔 Открыт новый реквест: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} от ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
           elif [ "${{ github.event.action }}" = "closed" ]; then
             if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
               MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
@@ -26,13 +26,16 @@ jobs:
               MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
             fi
           fi
-        elif [ "${{ github.event_name }}" = "issues" ]; then
-          if [ "${{ github.event.action }}" = "opened" ]; then
-            ISSUE_RELATED_PR="No related pull request specified."
-            if [[ "${{ github.event.issue.body }}" =~ #[0-9]+ ]]; then
-              ISSUE_RELATED_PR="Related pull request: $BASH_REMATCH"
+        elif [ "${{ github.event_name }}" = "issue_comment" ]; then
+          if [ "${{ github.event.action }}" = "created" ]; then
+            COMMENT="${{ github.event.comment.body }}"
+            PR_NUMBER=$(echo "$COMMENT" | grep -oE "#[0-9]+")
+            if [ -n "$PR_NUMBER" ]; then
+              RELATED_PR="$PR_NUMBER"
+            else
+              RELATED_PR="None"
             fi
-            MESSAGE="📝 Открыт новый вопрос: #${{ github.event.issue.number }} - ${{ github.event.issue.title }} от ${{ github.event.issue.user.login }} по реквесту: $ISSUE_RELATED_PR. \n[Просмотр](${{ github.event.issue.html_url }})"
+            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту: #$RELATED_PR \n#${{ github.event.issue.number }}: ${{ github.event.comment.body }}"
           fi
         fi
         
