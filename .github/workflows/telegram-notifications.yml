@@ -20,21 +20,21 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           if [ "${{ github.event.action }}" = "opened" ]; then
-            MESSAGE="🔔 A new pull request has been opened:\n#${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }}\nby ${{ github.event.pull_request.user.login }}.\n[View Pull Request](${{ github.event.pull_request.html_url }})"
+            MESSAGE="🔔 Открыт новый реквест: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} от ${{ github.event.pull_request.user.login }}.       [Pull Request](${{ github.event.pull_request.html_url }})"
           elif [ "${{ github.event.action }}" = "closed" ]; then
             if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
-              MESSAGE="✅ Pull request #${{ github.event.pull_request.number }} has been merged:\n${{ github.event.pull_request.title }}\nby ${{ github.event.pull_request.user.login }}.\n[View Pull Request](${{ github.event.pull_request.html_url }})"
+              MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}.       [Pull Request](${{ github.event.pull_request.html_url }})"
             else
-              MESSAGE="❌ Pull request #${{ github.event.pull_request.number }} has been closed without merging:\n${{ github.event.pull_request.title }}\nby ${{ github.event.pull_request.user.login }}.\n[View Pull Request](${{ github.event.pull_request.html_url }})"
+              MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}.       [Pull Request](${{ github.event.pull_request.html_url }})"
             fi
           fi
         elif [ "${{ github.event_name }}" = "issue_comment" ]; then
           if [ "${{ github.event.action }}" = "created" ]; then
-            MESSAGE="💬 A new comment has been made by ${{ github.event.comment.user.login }} on issue #${{ github.event.issue.number }}:\n${{ github.event.comment.body }}\n[View Comment](${{ github.event.comment.html_url }})"
+            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту #${{ github.event.issue.number }}:    ${{ github.event.comment.body }}       [Comment](${{ github.event.comment.html_url }})"
           fi
         elif [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
           if [ "${{ github.event.action }}" = "created" ]; then
-            MESSAGE="💬 A new comment has been made by ${{ github.event.comment.user.login }} on pull request #${{ github.event.pull_request.number }}:\n${{ github.event.comment.body }}\n[View Comment](${{ github.event.comment.html_url }})"
+            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту #${{ github.event.pull_request.number }}:    ${{ github.event.comment.body }}       [Comment](${{ github.event.comment.html_url }})"
           fi
         fi
         
