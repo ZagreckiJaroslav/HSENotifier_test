@@ -41,4 +41,4 @@ jobs:
           fi
         fi
         
-        curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" -d chat_id=$CHAT_ID -d text="$MESSAGE" -d parse_mode="HTML"
+        curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" -d chat_id=$CHAT_ID -d text="$MESSAGE" -d parse_mode="Markdown"
