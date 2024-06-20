@@ -20,12 +20,12 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           if [ "${{ github.event.action }}" = "opened" ]; then
-            MESSAGE="🔔 Открыт новый реквест: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} от ${{ github.event.pull_request.user.login }}. <br><a href='${{ github.event.pull_request.html_url }}'>[Просмотр]</a>"
+            MESSAGE="🔔 Открыт новый реквест: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} от ${{ github.event.pull_request.user.login }}. <br>[Просмотр]${{ github.event.pull_request.html_url }}"
           elif [ "${{ github.event.action }}" = "closed" ]; then
             if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
-              MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}. <br><a href='${{ github.event.pull_request.html_url }}'>[Просмотр]</a>"
+              MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}. <br>[Просмотр]${{ github.event.pull_request.html_url }}"
             else
-              MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}. <br><a href='${{ github.event.pull_request.html_url }}'>[Просмотр]</a>"
+              MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}. <br>[Просмотр]${{ github.event.pull_request.html_url }}"
             fi
           fi
         elif [ "${{ github.event_name }}" = "issue_comment" ] || [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
@@ -37,7 +37,7 @@ jobs:
             else
               RELATED_PR="None"
             fi
-            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту: #$RELATED_PR <br>#${{ github.event.issue.number }}: ${{ github.event.comment.body }}<br><a href='${{ github.event.comment.html_url }}'>[Просмотр]</a>"
+            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту: #$RELATED_PR <br>#${{ github.event.issue.number }}: ${{ github.event.comment.body }}"
           fi
         fi
         
