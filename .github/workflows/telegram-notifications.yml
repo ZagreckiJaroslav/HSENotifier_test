@@ -5,6 +5,8 @@ on:
     types: [opened, closed]
   issue_comment:
     types: [created]
+  pull_request_review_comment:
+    types: [created]
 
 jobs:
   notify:
@@ -18,15 +20,15 @@ jobs:
       run: |
         if [ "${{ github.event_name }}" = "pull_request" ]; then
           if [ "${{ github.event.action }}" = "opened" ]; then
-            MESSAGE="🔔 Открыт новый реквест: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} от ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
+            MESSAGE="🔔 Открыт новый реквест: #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} от ${{ github.event.pull_request.user.login }}. <br><a href='${{ github.event.pull_request.html_url }}'>[Просмотр]</a>"
           elif [ "${{ github.event.action }}" = "closed" ]; then
             if [ "${{ github.event.pull_request.merged }}" = "true" ]; then
-              MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
+              MESSAGE="✅ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} принят ${{ github.event.pull_request.user.login }}. <br><a href='${{ github.event.pull_request.html_url }}'>[Просмотр]</a>"
             else
-              MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}. \n[Просмотр](${{ github.event.pull_request.html_url }})"
+              MESSAGE="❌ Реквест #${{ github.event.pull_request.number }} - ${{ github.event.pull_request.title }} отклонен ${{ github.event.pull_request.user.login }}. <br><a href='${{ github.event.pull_request.html_url }}'>[Просмотр]</a>"
             fi
           fi
-        elif [ "${{ github.event_name }}" = "issue_comment" ]; then
+        elif [ "${{ github.event_name }}" = "issue_comment" ] || [ "${{ github.event_name }}" = "pull_request_review_comment" ]; then
           if [ "${{ github.event.action }}" = "created" ]; then
             COMMENT="${{ github.event.comment.body }}"
             PR_NUMBER=$(echo "$COMMENT" | grep -oE "#[0-9]+")
@@ -35,8 +37,8 @@ jobs:
             else
               RELATED_PR="None"
             fi
-            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту: #$RELATED_PR \n#${{ github.event.issue.number }}: ${{ github.event.comment.body }}"
+            MESSAGE="💬 Новый комментарий от ${{ github.event.comment.user.login }} по реквесту: #$RELATED_PR <br>#${{ github.event.issue.number }}: ${{ github.event.comment.body }}<br><a href='${{ github.event.comment.html_url }}'>[Просмотр]</a>"
           fi
         fi
         
-        curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" -d chat_id=$CHAT_ID -d text="$MESSAGE" -d parse_mode="Markdown"
+        curl -s -X POST "https://api.telegram.org/bot${{ env.TELEGRAM_BOT_TOKEN }}/sendMessage" -d chat_id=$CHAT_ID -d text="$MESSAGE" -d parse_mode="HTML"
